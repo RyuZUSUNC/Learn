@@ -1,0 +1,27 @@
+为了支持分布式的运行，Flink和其他大数据引擎一样，采用了主从（Master-Worker）架构。Flink运行时主要包括两个组件：
+
+- Master 是一个 Flink 作业的主进程。起到协调管理的作用。
+- TaskManager，又被称为Worker或Slave，是执行计算任务的进程。它拥有CPU、内存等计算资源。Flink作业需要将计算任务分发到多个TaskManager上并行执行。
+
+# Flink作业提交过程
+
+Flink为适应不同的基础环境（Standalone集群、YARN、Kubernetes），在不断的迭代开发过程中已经逐渐形成了一个兼容性很强的架构。不同的基础环境对计算资源的管理方式略有不同，不过都大同小异，以Standalone集群为例，分析作业的分布式执行流程。Standalone模式指Flink独占该集群，集群上无其他任务。
+
+在一个作业提交前，Master和TaskManager等进程需要先被启动。我们可以在Flink主目录中执行脚本来启动这些进程：bin/start-cluster.sh。Master和TaskManager被启动后，TaskManager需要将自己注册给Master中的ResourceManager。这个初始化和资源注册过程发生在单个作业提交前，我们称之为第0步。
+
+一个Flink作业如何被提交:
+
+1. 用户编写应用程序代码，并通过Flink客户端（Client）提交作业。程序一般为Java或Scala语言，调用Flink API，构建逻辑视角数据流图。代码和相关配置文件被编译打包，被提交到Master的Dispatcher，形成一个应用作业（Application）。
+2. Dispatcher接收到这个作业，启动JobManager，这个JobManager会负责本次作业的各项协调工作。
+3. JobManager向ResourceManager申请本次作业所需资源。
+4. 由于在第0步中TaskManager已经向ResourceManager中注册了资源，这时闲置的TaskManager会被反馈给JobManager。
+5. JobManager将用户作业中的逻辑视图转化为图所示的并行化的物理执行图，将计算任务分发部署到多个TaskManager上。至此，一个Flink作业就开始执行了。
+
+TaskManager在执行计算任务过程中可能会与其他TaskManager交换数据，会使用一些数据交换策略。同时，TaskManager也会将一些任务状态信息会反馈给JobManager，这些信息包括任务启动、运行或终止的状态，快照的元数据等。
+
+# Flink核心组件
+
+## Client
+
+用户一般使用客户端（Client）提交作业，比如Flink主目录下的bin目录中提供的命令行工具。Client会对用户提交的Flink程序进行预处理，并把作业提交到Flink集群上。Client提交作业时需要配置一些必要的参数，比如使用Standalone集群还是YARN集群等。整个作业被打成了Jar包，DataStream API被转换成了JobGraph，JobGraph是一种类似逻辑视图。
+

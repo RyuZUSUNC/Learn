@@ -1,0 +1,37 @@
+# Java Swing 设置主题
+Java 默认不设置主题可谓页面非常丑陋，以下方面可改善
+
+在启动的main 方法加入：
+
+```java
+// Metal风格 (默认)
+String lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
+UIManager.setLookAndFee(lookAndFeel);
+
+// Windows风格
+String lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+UIManager.setLookAndFee(lookAndFeel);  
+
+// Windows Classic风格
+String lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
+UIManager.setLookAndFee(lookAndFeel);  
+
+// Motif风格
+String lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+UIManager.setLookAndFeel(lookAndFeel);
+
+// Mac风格 (需要在相关的操作系统上方可实现)
+String lookAndFeel = "com.sun.java.swing.plaf.mac.MacLookAndFeel";
+UIManager.setLookAndFeel(lookAndFeel);
+
+// GTK风格 (需要在相关的操作系统上方可实现)
+String lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+UIManager.setLookAndFeel(lookAndFeel);
+
+// 可跨平台的默认风格
+String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+UIManager.setLookAndFeel(lookAndFeel);
+// 当前系统的风格
+String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+UIManager.setLookAndFeel(lookAndFeel);
+```
